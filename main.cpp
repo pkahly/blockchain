@@ -1,29 +1,13 @@
+#include "blocks/blockchain.h"
+
 #include <iostream>
 #include <sstream>
 #include <cstring>
 #include <memory>
-#include <map>
 #include <openssl/rand.h>
 #include <openssl/sha.h>
 #include <gmpxx.h>
 using namespace std;
-
-struct Metadata {
-   int height;
-   mpz_class hash;
-};
-
-struct Header {
-   mpz_class previous_blockhash;
-   mpz_class nonce;
-   mpz_class difficulty_target;
-   time_t timestamp = time(NULL);
-};
-
-struct Block {
-   Metadata metadata;
-   Header header;
-};
 
 /**
 * Convert an unsigned char to a string of hex characters
@@ -85,7 +69,7 @@ mpz_class get_blockhash(Header header) {
 /**
 * Calculate the next difficulty target based on the timestamps of the previous blocks
 */
-mpz_class get_next_difficulty(map<int, Block> blockchain, int height) {
+mpz_class get_next_difficulty(Blockchain blockchain, int height) {
    // Settings
    int difficulty_period = 100;
    int idea_block_time_seconds = 10;
@@ -101,8 +85,8 @@ mpz_class get_next_difficulty(map<int, Block> blockchain, int height) {
    int count = tip_height - old_height;
    
    // Get average time between blocks
-   Block tip_block = blockchain[tip_height];
-   Block old_block = blockchain[old_height];
+   Block tip_block = blockchain.get_block(tip_height);
+   Block old_block = blockchain.get_block(old_height);
    int total_seconds = tip_block.header.timestamp - old_block.header.timestamp;
    
    int average_seconds;
@@ -161,8 +145,8 @@ Block create_new_genesis_block() {
 /**
 * Mine new block based on the given block
 */
-Block mine_new_block(map<int, Block> blockchain, int height) {
-   Block previous_block = blockchain[height - 1];
+Block mine_new_block(Blockchain blockchain, int height) {
+   Block previous_block = blockchain.get_block(height - 1);
    Block block;
    
    block.header.previous_blockhash = previous_block.metadata.hash;
@@ -182,12 +166,12 @@ Block mine_new_block(map<int, Block> blockchain, int height) {
 
 /** Start mining */
 int main() {
-   // Create blockchain. height -> block
-   map<int, Block> blockchain;
+   // Create blockchain
+   Blockchain blockchain;
    
    // Create genesis block
    Block genesis_block = create_new_genesis_block();
-   blockchain[0] = genesis_block;
+   blockchain.add_block(0, genesis_block);
    
    // Mine new blocks
    Block block = genesis_block;
@@ -195,7 +179,8 @@ int main() {
    
    while (true) {
       block = mine_new_block(blockchain, height);
-      blockchain[height] = block;
+      
+      blockchain.add_block(height, block);
       
       cout << "\n";
       cout << "height: " << height << "\n";
