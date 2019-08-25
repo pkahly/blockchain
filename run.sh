@@ -1,1 +1,1 @@
-g++ main.cpp -L/usr/lib -lssl -lcrypto -o main.out && ./main.out
+g++ main.cpp -L/usr/lib -lssl -lcrypto -lgmpxx -lgmp -o main.out && ./main.out
