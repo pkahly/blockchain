@@ -177,7 +177,6 @@ int main() {
    
    while (true) {
       block = mine_new_block(blockchain, height);
-      cout << "Block Size: " << sizeof(block) << "\n";
       
       blockchain.add_block(height, block);
       
