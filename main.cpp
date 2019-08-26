@@ -26,7 +26,7 @@ string to_hex(unsigned char* s) {
 * Generate a Random Nonce using SSL's cryptographically secure random
 */
 mpz_class get_random_nonce() {
-   unsigned char* nonce = new unsigned char[SHA512_DIGEST_LENGTH];
+   unsigned char nonce[SHA512_DIGEST_LENGTH];
    RAND_bytes(nonce, SHA512_DIGEST_LENGTH);
    
    string nonce_str = to_hex(nonce);
@@ -72,7 +72,7 @@ mpz_class get_blockhash(Header header) {
 mpz_class get_next_difficulty(Blockchain blockchain, int height) {
    // Settings
    int difficulty_period = 100;
-   int idea_block_time_seconds = 10;
+   int ideal_block_time_seconds = 1;
    float max_ratio = 4;
    float min_ratio = 0.25;
    
@@ -93,13 +93,13 @@ mpz_class get_next_difficulty(Blockchain blockchain, int height) {
    if (count > 0) {
       average_seconds = total_seconds / count;
    } else {
-      average_seconds = 0;
+      average_seconds = ideal_block_time_seconds;
    }
    
    // Calculate ratio
    float ratio;
    if (average_seconds > 0) {
-      ratio = float(idea_block_time_seconds) / average_seconds;
+      ratio = float(ideal_block_time_seconds) / average_seconds;
    } else {
       ratio = max_ratio;
    }
@@ -132,8 +132,6 @@ mpz_class get_next_difficulty(Blockchain blockchain, int height) {
 Block create_new_genesis_block() {
    Block genesis_block;
    
-   genesis_block.header.previous_blockhash = -1;
-   genesis_block.header.difficulty_target =  1.340781e+154;
    genesis_block.header.nonce = get_random_nonce();
    
    genesis_block.metadata.height = 0;
@@ -179,6 +177,7 @@ int main() {
    
    while (true) {
       block = mine_new_block(blockchain, height);
+      cout << "Block Size: " << sizeof(block) << "\n";
       
       blockchain.add_block(height, block);
       
