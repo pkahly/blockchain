@@ -1,5 +1,4 @@
 #include <map>
-#include "block.h"
 using namespace std;
 
 class Blockchain {
