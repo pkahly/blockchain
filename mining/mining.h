@@ -73,19 +73,19 @@ mpz_class get_next_difficulty(Blockchain blockchain, int height) {
    float min_ratio = 0.25;
    
    // Get block heights to use
-   int tip_height = height - 1;
-   int old_height = tip_height - difficulty_period;
+   float tip_height = height - 1;
+   float old_height = tip_height - difficulty_period;
    if (old_height < 0) {
       old_height = 0;
    }
-   int count = tip_height - old_height;
+   float count = tip_height - old_height;
    
    // Get average time between blocks
    Block tip_block = blockchain.get_block(tip_height);
    Block old_block = blockchain.get_block(old_height);
-   int total_seconds = tip_block.header.timestamp - old_block.header.timestamp;
+   float total_seconds = tip_block.header.timestamp - old_block.header.timestamp;
    
-   int average_seconds;
+   float average_seconds;
    if (count > 0) {
       average_seconds = total_seconds / count;
    } else {
@@ -95,7 +95,7 @@ mpz_class get_next_difficulty(Blockchain blockchain, int height) {
    // Calculate ratio
    float ratio;
    if (average_seconds > 0) {
-      ratio = float(ideal_block_time_seconds) / average_seconds;
+      ratio = ideal_block_time_seconds / average_seconds;
    } else {
       ratio = max_ratio;
    }
@@ -106,7 +106,9 @@ mpz_class get_next_difficulty(Blockchain blockchain, int height) {
       ratio = max_ratio;
    }
    
-   cout << "\n" << "Difficulty Ratio: " << ratio << "\n";
+   cout << "\n";
+   cout << "Average Seconds: " << average_seconds << "\n";
+   cout << "Difficulty Ratio: " << ratio << "\n";
    
    // Calculate new difficulty
    mpz_class prev_diff = tip_block.header.difficulty_target;
