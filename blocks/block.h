@@ -16,4 +16,5 @@ class Block {
    public: // TODO make private
       Metadata metadata;
       Header header;
+      Transaction transactions [0];
 };

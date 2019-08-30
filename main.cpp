@@ -1,3 +1,4 @@
+#include "transactions/transaction.h"
 #include "blocks/block.h"
 #include "blocks/blockchain.h"
 #include "mining/mining.h"
